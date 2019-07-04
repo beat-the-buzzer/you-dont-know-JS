@@ -108,3 +108,109 @@
   //     configurable: true
   // }
 }
+
+// writable
+{
+  var myObj = {};
+  Object.defineProperty(myObj, 'a', {
+    value: 2,
+    writable: false,
+    configurable: true,
+    enumerable: true
+  });
+
+  myObj.a = 3;
+  console.log(myObj.a); // 2 属性不可修改，静默失败。
+  // 如果是严格模式，就会报错
+}
+
+{
+  var myObj = {
+    a: 2
+  };
+  myObj.a = 3;
+  console.log(myObj.a); // 3 修改属性成功
+
+  Object.defineProperty(myObj, 'a', {
+    value: 4,
+    writable: true,
+    configurable: false,
+    enumerable: true
+  });
+  console.log(myObj.a); // 4 使用属性描述符修改成功
+  myObj.a = 5;
+  console.log(myObj.a); // 5 修改成功
+
+  delete myObj.a; // 删除失效
+  console.log(myObj.a); // 5 属性依旧存在
+
+  // 再次使用defineProperty报错
+  // Object.defineProperty(myObj, 'a', {
+  //   value: 4,
+  //   writable: true,
+  //   configurable: true,
+  //   enumerable: true
+  // });
+
+  // 有一个例外，可以在configurable为false的情况下，把writable从true改成false
+  Object.defineProperty(myObj, 'a', {
+    value: 4,
+    writable: false,
+    configurable: false,
+    enumerable: true
+  });
+}
+
+
+// enumerable
+{
+  var myObj = {
+    a: 1,
+  };
+  Object.defineProperty(myObj, 'b', {
+    value: 2,
+    writable: true,
+    configurable: true,
+    enumerable: true
+  });
+  Object.defineProperty(myObj, 'c', {
+    value: 3,
+    writable: true,
+    configurable: true,
+    enumerable: false
+  });
+  for(var i in myObj) {
+    console.log(i); // a,b 没有c
+  }
+}
+
+// 对象常量
+{
+  var myObj = {};
+  Object.defineProperty(myObj, 'a', {
+    value: 1,
+    writable: false,
+    configurable: false,
+    enumerable: true
+  });
+  console.log(myObj); // { a: 1}, 不可修改 重定义 或删除
+}
+
+// 对象浅不变性
+{
+  const arr = [1, 2];
+  arr.push(3);
+  console.log(arr); // 1,2,3
+}
+
+// 禁止扩展
+{
+  var myObj = {
+    a: 1
+  };
+  Object.preventExtensions(myObj);
+
+  myObj.b = 2; 
+  console.log(myObj.b); // undefined 严格模式，在上一行就报错
+}
+

@@ -1,4 +1,4 @@
-### 对象
+## 对象
 
 #### 类型
 
@@ -186,7 +186,7 @@ obj; // { a: 1 };
 
 #### 属性描述符
 
-Vue框架就是使用defineProperty来拦截数据，如果想去研究Vue源码，首先必须要弄懂属性描述符。
+> Vue框架就是使用defineProperty来拦截数据，如果想去研究Vue源码，首先必须要弄懂属性描述符。
 
 ```JavaScript
 var obj = { a: 1 };
@@ -198,3 +198,142 @@ Object.getOwnPropertyDescriptor(obj, 'a');
 //     configurable: true
 // }
 ```
+
+1、writable
+
+writable决定是否可以修改属性的值：
+
+```js
+var myObj = {};
+Object.defineProperty(myObj, 'a', {
+  value: 2,
+  writable: false,
+  configurable: true,
+  enumerable: true
+});
+
+myObj.a = 3;
+console.log(myObj.a); // 2 属性不可修改，静默失败。
+```
+
+这里需要注意，在严格模式下，试图改变不可写属性的操作，会出错。
+
+面试的时候，有被问到ES6的const常量怎么实现，其实可以使用这个属性描述符。
+
+2、configurable
+
+如果是可配置的属性，就可以去使用defineProperty修改属性描述符：
+
+```js
+var myObj = {
+  a: 2
+};
+myObj.a = 3;
+console.log(myObj.a); // 3 修改属性成功
+
+Object.defineProperty(myObj, 'a', {
+  value: 4,
+  writable: true,
+  configurable: false,
+  enumerable: true
+});
+console.log(myObj.a); // 4 使用属性描述符修改成功
+myObj.a = 5;
+console.log(myObj.a); // 5 修改成功
+
+delete myObj.a; // 删除失效
+console.log(myObj.a); // 5 属性依旧存在
+
+// 再次使用defineProperty报错
+Object.defineProperty(myObj, 'a', {
+  value: 4,
+  writable: true,
+  configurable: true,
+  enumerable: true
+});
+
+// 有一个例外，可以在configurable为false的情况下，把writable从true改成false
+Object.defineProperty(myObj, 'a', {
+  value: 4,
+  writable: false,
+  configurable: false,
+  enumerable: true
+});
+```
+
+有一个例外，可以在configurable为false的情况下，把writable从true改成false。
+
+另外，删除属性也是禁止的。
+
+3、enumerable
+
+这个属性描述符控制的是这个属性是否会出现在对象的属性枚举中：
+
+```js
+var myObj = {
+  a: 1,
+};
+Object.defineProperty(myObj, 'b', {
+  value: 2,
+  writable: true,
+  configurable: true,
+  enumerable: true
+});
+Object.defineProperty(myObj, 'c', {
+  value: 3,
+  writable: true,
+  configurable: true,
+  enumerable: false
+});
+for(var i in myObj) {
+  console.log(i); // a,b 没有c
+}
+```
+
+#### 不变性
+
+1、对象常量
+
+```js
+var myObj = {};
+Object.defineProperty(myObj, 'a', {
+  value: 1,
+  writable: false,
+  configurable: false,
+  enumerable: true
+});
+console.log(myObj); // { a: 1}, 不可修改 重定义 或删除
+```
+
+2、禁止扩展
+
+在用ES6 const的时候，我们会发现，就算定义了一个常量数组，我们依旧可以对这个数组进行push操作：
+
+```js
+const arr = [1, 2];
+arr.push(3);
+console.log(arr); // 1,2,3
+```
+
+对象也是类似，上面的对象常量其实可以继续添加属性。如果我们也禁止添加属性，就需要额外的操作：
+
+```js
+var myObj = {
+  a: 1
+};
+Object.preventExtensions(myObj);
+
+myObj.b = 2; 
+console.log(myObj.b); // undefined 严格模式，在上一行就报错
+```
+
+3、密封
+
+密封的操作`Object.seal()`其实就是上面的禁止扩展操作，并把所有的属性设置为不可配置`configurable: false`，这里就不再举例了。
+
+4、冻结
+
+冻结的操作`Object.freeze()`其实就是上面的密封操作，并把所有的属性设置为不可写`writable: false`，这里就不再举例了。
+
+#### \[[get]] 和 \[[put]]
+
