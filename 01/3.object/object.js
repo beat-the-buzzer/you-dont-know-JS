@@ -214,3 +214,19 @@
   console.log(myObj.b); // undefined 严格模式，在上一行就报错
 }
 
+// [[get]]操作
+{
+  var myObj = {
+    a: 2
+  };
+  myObj.a; // 2
+}
+
+// 对象访问
+{
+  var myObj = {
+    a: undefined
+  };
+  myObj.a; // undefined
+  myObj.b; // undefined
+}
