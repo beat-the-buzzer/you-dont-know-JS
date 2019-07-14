@@ -377,3 +377,126 @@ myObj.b; // undefined
  给对象不存在的属性赋值时，操作会更加复杂。在\[[prototype]]里会去进行讨论。
 
  #### Getter和Setter
+
+ getter是一个隐藏函数，会在获取属性值的时候调用；setter也是一个隐藏函数，会在设置属性值的时候调用。
+
+getter:
+
+```js
+var myObj = {
+  get a() {
+    return 2;
+  }
+}
+
+Object.defineProperty(myObj, 'b', {
+  get: function () {
+    return this.a * 2;
+  },
+  enumerable: true
+})
+myObj.a; // 2 调用了get
+myObj.b; // 4
+myObj.a = 3; // 没有set，这个操作无效
+myObj.a; // 2 依旧是2
+```
+
+setter:
+
+```js
+var myObj = {
+  get a() {
+    return this._a_;
+  },
+  set a(val) {
+    this._a_ = val * 2;
+  }
+}
+myObj.a = 2; // 调用了setter方法，使得this._a_的值变成了4
+myObj.a; // 调用了getter方法，读取this._a_的值，是4
+```
+
+
+#### 存在性
+
+```js
+var myObj = {};
+Object.defineProperty(myObj, 'a', {
+  enumerable: true,
+  value: 2
+});
+Object.defineProperty(myObj, 'b', {
+  enumerable: false,
+  value: 3
+});
+myObj.b; // 3 可以正常访问
+('b' in myObj); // true
+for(var k in myObj) {
+  console.log(k, myObj[k]); // 'a' 2 并没有b
+}
+```
+
+> 在数组上使用for in有时会产生出人意料的结果。因为这种枚举除了会遍历索引值之外，还会包含所有的可枚举属性。所以遍历数组还是直接使用for循环。
+
+其他方式区分属性是否可枚举：
+
+```js
+var myObj = {};
+Object.defineProperty(myObj, 'a', {
+  value: 2,
+  enumerable: true
+});
+Object.defineProperty(myObj, 'b', {
+  value: 3,
+  enumerable: false
+});
+myObj.propertyIsEnumerable('a'); // true
+myObj.propertyIsEnumerable('b'); // false
+
+Object.keys(myObj); // ['a']
+Object.getOwnPropertyNames(myObj); // ['a', 'b]
+```
+
+propertyIsEnumerable会检查给定的属性名是否直接存在对象中，并且满足enumerable: true
+
+Object.keys返回一个数组，包含所有可枚举属性
+
+Object.getOwnPropertyNames会返回一个数组，包含所有属性，无论是否可枚举
+
+in和hasOwnProperty的区别在于是否查找\[[prototype]]链，Object.keys和Object.getOwnPropertyNames都只会查找对象直接包含的属性。
+
+#### 遍历
+
+对于数组来讲，我们经常使用for循环遍历数组下标：
+
+```js
+var myArr = [1, 2, 3];
+for(var i = 0; i < myArr.length; i++) {
+  console.log(myArr[i]); // 1 2 3
+}
+```
+
+ES6新增了for of方法，可以用来遍历值：
+
+```js
+var myArr = [1, 2, 3];
+for (var v of myArr) {
+  console.log(v); // 1 2 3
+}
+```
+
+for of会像被访问对象请求一个迭代器对象，然后通过调用迭代器对象的next()方法来遍历所有返回值。
+
+#### 小结
+
+1、JavaScript中的对象有字面量形式（var a = {...}）和构造形式（var a = new Array(...)）
+
+2、对象是6个（或7个）基础类型之一，对象有包括function在内的子类型，不同子类型具有不同的行为
+
+3、对象就是键值对的集合，可以通过.propName和['propName']来获取属性值。访问属性时，实际上会调用内部的\[[Get]]或者\[[Put]]方法。\[[Get]]操作会检查对象本身是否包含这个属性。如果没找到，还会查找\[[prototype]]链。
+
+4、属性的特性可以使用属性描述符来控制，比如writable、configurable。此外，可以使用Object.preventExtensions、Object.seal、Object.freeze来设置对象的不可变性级别。
+
+5、属性不一定包含值，它们可能是具备getter/setter的访问描述符。此外，属性可以是可枚举或者不可枚举的，这决定了它们是否会出现在for in中。
+
+6、可以使用ES6的for of遍历数组，for of会寻找内置或者自定义的@@iterator对象并调用它的next()方法来遍历数据的值。

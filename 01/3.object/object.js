@@ -179,7 +179,7 @@
     configurable: true,
     enumerable: false
   });
-  for(var i in myObj) {
+  for (var i in myObj) {
     console.log(i); // a,b 没有c
   }
 }
@@ -210,7 +210,7 @@
   };
   Object.preventExtensions(myObj);
 
-  myObj.b = 2; 
+  myObj.b = 2;
   console.log(myObj.b); // undefined 严格模式，在上一行就报错
 }
 
@@ -229,4 +229,90 @@
   };
   myObj.a; // undefined
   myObj.b; // undefined
+}
+
+// getter
+{
+  var myObj = {
+    get a() {
+      return 2;
+    }
+  }
+
+  Object.defineProperty(myObj, 'b', {
+    get: function () {
+      return this.a * 2;
+    },
+    enumerable: true
+  })
+  myObj.a; // 2
+  myObj.b; // 4
+  myObj.a = 3; // 没有setter方法，无效
+  myObj.a; // 2 依旧是2
+}
+
+// setter
+{
+  var myObj = {
+    get a() {
+      return this._a_;
+    },
+    set a(val) {
+      this._a_ = val * 2;
+    }
+  }
+  myObj.a = 2; // 调用了setter方法，使得this._a_的值变成了4
+  myObj.a; // 调用了getter方法，读取this._a_的值，是4
+}
+
+// 存在性校验
+{
+  var myObj = {};
+  Object.defineProperty(myObj, 'a', {
+    enumerable: true,
+    value: 2
+  });
+  Object.defineProperty(myObj, 'b', {
+    enumerable: false,
+    value: 3
+  });
+  myObj.b; // 3 可以正常访问
+  ('b' in myObj); // true
+  for (var k in myObj) {
+    console.log(k, myObj[k]); // 'a' 2 并没有b
+  }
+}
+
+// 区分属性是否可枚举
+{
+  var myObj = {};
+  Object.defineProperty(myObj, 'a', {
+    value: 2,
+    enumerable: true
+  });
+  Object.defineProperty(myObj, 'b', {
+    value: 3,
+    enumerable: false
+  });
+  myObj.propertyIsEnumerable('a'); // true
+  myObj.propertyIsEnumerable('b'); // false
+
+  Object.keys(myObj); // ['a']
+  Object.getOwnPropertyNames(myObj); // ['a', 'b]
+}
+
+// 遍历数组： 遍历下标，指向值
+{
+  var myArr = [1, 2, 3];
+  for (var i = 0; i < myArr.length; i++) {
+    console.log(myArr[i]); // 1 2 3
+  }
+}
+
+// 遍历数组： 遍历值
+{
+  var myArr = [1, 2, 3];
+  for (var v of myArr) {
+    console.log(v); // 1 2 3
+  }
 }
