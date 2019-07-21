@@ -37,9 +37,9 @@
     console.log("foo:" + num);
     this.count++;
   }
-  foo.count = 0; 
-  for(var i = 0; i < 10; i++) {
-    if(i > 5) {
+  foo.count = 0;
+  for (var i = 0; i < 10; i++) {
+    if (i > 5) {
       foo(i);
     }
   }
@@ -56,9 +56,9 @@
     console.log("foo:" + num);
     this.count++;
   }
-  foo.count = 0; 
-  for(var i = 0; i < 10; i++) {
-    if(i > 5) {
+  foo.count = 0;
+  for (var i = 0; i < 10; i++) {
+    if (i > 5) {
       foo.call(foo, i);
     }
   }
@@ -80,3 +80,50 @@
   }
   foo(); // 相当于访问了window.a
 }
+
+// 函数调用的位置
+{
+  function baz() {
+    // this指向调用位置
+    console.log('baz');
+    bar(); // 相当于window.bar()
+  }
+  function bar() {
+    // this指向window
+    console.log('bar');
+    foo(); // 相当于window.foo()
+  }
+  function foo() {
+    // this指向window
+    console.log('foo');
+  }
+  baz(); // 函数调用的位置，相当于window.baz();
+  var obj = { a: baz };
+  obj.a(); // baz里面的this指向obj
+}
+
+// this绑定规则
+
+// 1、默认绑定
+{
+  function foo() {
+    console.log(this.a);
+  }
+  var a = 2;
+  foo(); // 2
+}
+
+// 严格模式和非严格模式
+{
+  function foo() {
+    'use strict';
+    console.log(this.a);
+  }
+  function bar() {
+    console.log(this.a);
+  }
+  var a = 2;
+  bar(); // 2
+  foo(); //  Cannot read property 'a' of undefined
+}
+

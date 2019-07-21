@@ -133,3 +133,60 @@ foo(); // 相当于访问了window.a
 当函数被调用时，会创建一个活动记录，也就是执行上下文。这个记录里面包含函数在哪里被调用，函数调用方式，传入的参数等等。this就是这个记录的一个属性，会在函数执行的过程中用到。
 
 this是非常重要的，但是猜测、盲目复制别人的理解都不能真正理解this的机制。
+
+#### 理解调用位置
+
+```js
+function baz() {
+  // this指向调用位置
+  console.log('baz');
+  bar(); // 相当于window.bar()
+}
+function bar() {
+  // this指向window
+  console.log('bar');
+  foo(); // 相当于window.foo()
+}
+function foo() {
+  // this指向window
+  console.log('foo');
+}
+baz(); // 函数调用的位置，相当于window.baz();
+var obj = { a: baz };
+obj.a(); // baz里面的this指向obj
+```
+
+#### 绑定规则
+
+1、默认绑定
+
+```js
+function foo() {
+  console.log(this.a);
+}
+var a = 2;
+foo(); // 2
+```
+
+我们应该意识到，在全局作用域中定义的变量，就是在全局环境下添加了一个属性。上面的例子中，调用foo()时，应用了this的`默认绑定`，因此this指向全局对象。
+
+我们分析函数的调用位置，发现foo()没有任何修饰符，所以只能使用默认绑定规则。
+
+如果使用严格模式，则不能将全局对象用于默认绑定，此时this会指向undefined。
+
+```js
+function foo() {
+  'use strict';
+  console.log(this.a);
+}
+function bar() {
+  console.log(this.a);
+}
+var a = 2;
+bar(); // 2
+foo(); //  Cannot read property 'a' of undefined
+```
+
+> 通常来说，不应该在代码里混合使用严格模式和非严格模式，然而，有时候引入的第三方库有严格模式和非严格模式的区分，所以要注意这方面的兼容。
+
+2、隐式绑定
