@@ -190,3 +190,73 @@ foo(); //  Cannot read property 'a' of undefined
 > 通常来说，不应该在代码里混合使用严格模式和非严格模式，然而，有时候引入的第三方库有严格模式和非严格模式的区分，所以要注意这方面的兼容。
 
 2、隐式绑定
+
+另一条需要考虑的规则是调用位置是否有上下文对象。
+
+```js
+function foo() {
+  console.log(this.a);
+}
+var obj = {
+  a: 2,
+  foo: foo
+};
+obj.foo(); // 2
+```
+
+我们已经知道，就算foo函数成为了obj的一个属性，foo函数也不属于obj对象。但是，调用位置会使用obj上下文来引用函数，所以可以说：`foo函数在被调用的瞬间obj对象拥有或者包含这个函数`。
+
+当函数拥有上下文对象时，隐式绑定规则会把函数调用中的this绑定到这个上下文对象。
+
+对象属性引用链只在上一层或者说最后一层在调用位置有用。
+
+```js
+function foo() {
+  console.log(this.a);
+}
+var obj2 = {
+  a: 42,
+  foo: foo
+};
+var obj1 = {
+  a: 2,
+  obj2: obj2
+};
+obj1.obj2.foo(); // 42
+```
+
+隐式丢失的情况：
+
+一个常见的this绑定问题就是被隐式绑定的函数会丢失绑定对象，也就是说它会应用默认绑定。
+
+```js
+function foo() {
+  console.log(this.a);
+}
+var obj = {
+  a: 2,
+  foo: foo
+};
+var bar = obj.foo;
+var a = '全局对象';
+bar(); // '全局对象'
+```
+
+还有一种情况会发生在回调函数里：
+
+```js
+function foo() {
+  console.log(this.a);
+}
+function doFoo(fn) {
+  fn(); // 调用的位置
+}
+var obj = {
+  a: 2,
+  foo: foo
+};
+var a = '全局';
+doFoo(obj.foo); // '全局'
+```
+
+参数传递也是一种隐式赋值。

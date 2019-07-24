@@ -127,3 +127,59 @@
   foo(); //  Cannot read property 'a' of undefined
 }
 
+// 隐式绑定
+{
+  function foo() {
+    console.log(this.a);
+  }
+  var obj = {
+    a: 2,
+    foo: foo
+  };
+  obj.foo(); // 2
+}
+
+{
+  function foo() {
+    console.log(this.a);
+  }
+  var obj2 = {
+    a: 42,
+    foo: foo
+  };
+  var obj1 = {
+    a: 2,
+    obj2: obj2
+  };
+  obj1.obj2.foo(); // 42
+}
+
+// 隐式丢失
+{
+  function foo() {
+    console.log(this.a);
+  }
+  var obj = {
+    a: 2,
+    foo: foo
+  };
+  var bar = obj.foo;
+  var a = '全局对象';
+  bar(); // '全局对象'
+}
+
+// 隐式丢失 回调函数
+{
+  function foo() {
+    console.log(this.a);
+  }
+  function doFoo(fn) {
+    fn(); // 调用的位置
+  }
+  var obj = {
+    a: 2,
+    foo: foo
+  };
+  var a = '全局';
+  doFoo(obj.foo); // '全局'
+}
