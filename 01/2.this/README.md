@@ -260,3 +260,101 @@ doFoo(obj.foo); // '全局'
 ```
 
 参数传递也是一种隐式赋值。
+
+3、显式绑定
+
+在隐式绑定里面，我们必须在一个对象内部包含一个指向函数的属性，并通过这个属性间接引用函数。
+
+有时候我们不想在对象内部包含函数引用，而是想在某个对象上强制调用函数，这个时候就需要显式绑定。
+
+JavaScript中使用call或者apply来改变函数的tihs绑定，它们的第一个参数是一个对象，这个对象就是绑定到this的对象，所以叫做显式绑定。
+
+```js
+function foo() {
+  console.log(this.a);
+}
+var obj = {
+  a: 2
+};
+foo.call(obj); // 2
+```
+
+call/apply的第一个参数是一个对象，如果传一个基本类型，就会自动转成他们的对象类型（例如：new String(...)）
+
+> JavaScript中很多地方都会有自动转换的思想，例如，对象的key是一个字符串，如果使用另一个对象作为该对象的key，这个key会被自动转成字符串"[object Object]"
+
+显式绑定依然无法直接解决绑定丢失的问题。不过利用显式绑定，可以找到解决问题的方案。
+
+```js
+function foo() {
+  console.log(this.a);
+}
+var obj = {
+  a: 2
+};
+var bar = function() {
+  foo.call(obj);
+};
+bar(); // 2
+setTimeout(bar, 100); // 2
+bar.call(window); // 2 不能再修改this指向
+```
+
+我们把调用foo的操作写在了bar函数里，并且强行绑定了obj，然后通过调用bar来调用foo，这样，无论我们如何调用bar，foo已经强行绑定了，无法修改。
+
+一个简单的应用就是创建一个包裹函数，负责接收参数并返回值：
+
+```js
+function foo(something) {
+  console.log(this.a, something);
+  return this.a + something;
+}
+var obj = {
+  a: 2
+};
+var bar = function() {
+  return foo.apply(obj, arguments);
+}
+var b = bar(3); // 2 3
+console.log(b); // 5
+```
+
+另一个常见的应用就是创建一个可以重复使用的辅助函数：
+
+```js
+function foo(something) {
+  console.log(this.a, something);
+  return this.a + something;
+}
+// 辅助函数
+function bind(fn, obj) {
+  return function () {
+    return fn.apply(obj, arguments);
+  }
+}
+var obj = {
+  a: 2
+};
+var bar = bind(foo, obj);
+var b = bar(3); // 2 3
+console.log(b); // 5
+```
+
+> 这种方式就是函数式编程的思想。实际上，函数是编程就是闭包+call/apply。
+
+2、API上下文
+
+很多第三方库函数都提供了可选上下文参数，可以确保回调函数可以使用指定的this
+
+```js
+function foo(el) {
+  console.log(el, this.id);
+}
+var obj = {
+  id: 'hehe'
+};
+[1, 2, 3].forEach(foo, obj);
+// 1 hehe 2 hehe 3 hehe
+```
+
+[附：call、apply、bind原生实现](https://github.com/beat-the-buzzer/you-dont-konw-JS/blob/master/01/2.this/call-apply-bind.js)
