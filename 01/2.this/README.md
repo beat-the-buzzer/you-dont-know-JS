@@ -342,7 +342,7 @@ console.log(b); // 5
 
 > 这种方式就是函数式编程的思想。实际上，函数是编程就是闭包+call/apply。
 
-2、API上下文
+API上下文
 
 很多第三方库函数都提供了可选上下文参数，可以确保回调函数可以使用指定的this
 
@@ -358,3 +358,32 @@ var obj = {
 ```
 
 [附：call、apply、bind原生实现](https://github.com/beat-the-buzzer/you-dont-konw-JS/blob/master/01/2.this/call-apply-bind.js)
+
+4、new 绑定
+
+首先，我们知道，不仅仅是JavaScript，其它很多编程语言都有new，但是，JavaScript中的new和其它编程语言有明显的不一样的地方。
+
+JavaScript中，“构造函数”只是一些使用new操作符时被调用的函数，它们不会属于某个类，也不会实例化一个类。
+
+当我们使用new去调用Number时，Number是一个构造函数，它会初始化创建一个新的对象。所以，包括内置对象函数（例如Number）在内的所有函数都可以使用new来调用，这种函数调用被称为构造函数调用。
+
+我们使用new来调用函数时，会执行一系列的操作：
+
+ - 创建一个新的对象
+ - 这个新对象会被执行\[[prototype]]连接
+ - 这个新对象会绑定到函数调用的this
+ - 如果函数没有返回其它对象，那么new表达式中的函数调用会自动返回这个新对象
+
+第二步暂时调过，会在介绍原型的时候详细说明。
+
+```js
+function foo(a) {
+  this.a = a;
+}
+var bar = new foo(2); // 创建了一个新的对象
+console.log(bar.a); // 2
+```
+
+使用new来调用foo()时，我们会构造一个新对象并把它绑定到foo()调用中的this上。
+
+#### 优先级测试

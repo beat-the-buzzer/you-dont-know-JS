@@ -258,3 +258,12 @@
   [1, 2, 3].forEach(foo, obj);
   // 1 hehe 2 hehe 3 hehe
 }
+
+// new绑定
+{
+  function foo(a) {
+    this.a = a;
+  }
+  var bar = new foo(2); // 创建了一个新的对象
+  console.log(bar.a); // 2
+}
