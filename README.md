@@ -4,15 +4,15 @@
 
 #### 你不知道的JavaScript上卷
 
-[1、作用域和闭包]()
+[1、作用域和闭包](https://github.com/beat-the-buzzer/you-dont-know-JS/tree/master/01/1.scope-closures)
 
-[2、this全面解析](https://github.com/beat-the-buzzer/you-don-t-konw-JS/tree/master/01/2.this)
+[2、this全面解析](https://github.com/beat-the-buzzer/you-dont-know-JS/tree/master/01/2.this)
 
-[3、对象](https://github.com/beat-the-buzzer/you-don-t-konw-JS/tree/master/01/3.object)
+[3、对象](https://github.com/beat-the-buzzer/you-dont-know-JS/tree/master/01/3.object)
 
 [4、JavaScript中的类]()
 
-[5、原型]()
+[5、原型](https://github.com/beat-the-buzzer/you-dont-know-JS/tree/master/01/5.prototypes)
 
 #### 你不知道的JavaScript中卷
 
