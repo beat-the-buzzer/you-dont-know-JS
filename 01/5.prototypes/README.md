@@ -189,3 +189,10 @@ console.log(s1.getGrade()); // 5
 `Object.create()`会创建一个新对象，并把它关联到指定的对象（第一个参数），也就是说，新对象内部的\[[prototype]]关联到指定的对象。
 
 `Object.create()`的第二个参数指定了需要添加到新对象中的属性名以及这些属性的[属性描述符](https://github.com/beat-the-buzzer/you-dont-know-JS/tree/master/01/3.object#属性描述符)。
+
+```js
+function F() {}
+        F.prototype = proto;
+
+        return new F();
+```
